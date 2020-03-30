@@ -99,10 +99,10 @@ public class ViralMarketing {
 
     protected void runBasicAlgorithm() {
 
-        initGraph(styleSheetVisualizeCascading);
-
         g = readGraph("facebook_1000");
 
+        //visualization
+        initGraph(styleSheetVisualizeCascading);
         for (Map.Entry<Integer, HashSet<Integer>> entry : g.exportGraph().entrySet()) {
             int node = entry.getKey();
             addNode(node);
@@ -117,10 +117,11 @@ public class ViralMarketing {
         for (int i : initialUsers) {
             logger.debug("switched " + i);
         }
+        //displaying
         graph.display();
         sleep(60000);
 
-
+        //calculate the result + visualize
         cascadeChanges(initialUsers, true);
         logger.debug("done");
 
@@ -196,12 +197,18 @@ public class ViralMarketing {
         }
     }
 
+    /**
+     * A method to calculate how many users would switch to a new behaviour
+     *
+     * @param nodesUsingA  a set containing nodes with switched behaviour
+     * @param displayNodes use visualisation or not?
+     */
     private void cascadeChanges(Set<Integer> nodesUsingA, boolean displayNodes) {
 
         int generationNum = 1;
         logger.debug("Nodes switched in " + generationNum + " generation: " + nodesUsingA.size());
 
-
+        //run until there are no more changes
         while (true) {
 
             if (displayNodes) {
@@ -216,6 +223,8 @@ public class ViralMarketing {
             generationNum++;
             Set<Integer> nodesSwitchedInCurrentGen = new HashSet<>();
 
+            //for every node that has switched to A
+            //see if its neighbours will switch
             for (Integer node : nodesUsingA) {
                 HashSet<Integer> neighbors = g.getNeighbours(node);
                 for (Integer neighbor : neighbors) {
@@ -250,6 +259,17 @@ public class ViralMarketing {
         }
     }
 
+    /**
+     * An algorithm to find an approximate solution for a VIral Marketing problem
+     * 1. Select random nodes to switch
+     * 2. Foreach node N in initial set
+     * 3. Create a list usersForAnalysis containing N and all neighbours(N)
+     * 4. For each node NN in usersForAnalysis
+     *    replace N by NN in initial set, run our cascading algorithm and
+     *    find out, which node produces the best result. Take this node and put it
+     *    into initial set of users instead of node N
+     * 5. Run until the best set has not changed
+     */
     protected void runApproximationAlgorithm() {
         initGraph(styleSheetVisualizeApproximation);
         g = readGraph("facebook_1000");
@@ -264,6 +284,7 @@ public class ViralMarketing {
         int iterationNumber = 0;
         boolean bestSetHasChanged;
         int prevUser;
+
         do {
             bestSetHasChanged = false;
             iterationNumber++;
@@ -278,7 +299,6 @@ public class ViralMarketing {
 
                 LinkedList<Integer> usersForAnalysis = new LinkedList<>();
                 usersForAnalysis.add(currentUser);
-
                 for (int neighbor : g.getNeighbours(currentUser)) {
                     if (!currentUsersSet.contains(neighbor)) {
                         usersForAnalysis.add(neighbor);
