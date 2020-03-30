@@ -37,7 +37,8 @@ A straightforward solution - just repeat an algorithm from the easier question f
 
 I used the GraphStream library to make visualizations. 
 
-
+Basic algorithm
+![Basic algorithm](gif/basic.gif)
 
 
 
