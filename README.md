@@ -18,10 +18,10 @@ In the beginning, we have several user ids, who have adopted the new behavior, 
 
 1. init  nodesUsingA, nodesSwitchedInCurrentGeneration  
 2. repeat until nodesSwitchedInCurrentGeneration  is empty  
-3.     for each user U in nodesUsingA
-4.         for each friend F of user U 
-5.           if user F would adopt new behavior add it to nodesSwitchedInCurrentGeneration                    
-6.     merge  nodesUsingA with nodesSwitchedInCurrentGeneration 
+3. for each user U in nodesUsingA
+4. for each friend F of user U 
+5. if user F would adopt new behavior add it to nodesSwitchedInCurrentGeneration                    
+6. merge  nodesUsingA with nodesSwitchedInCurrentGeneration 
   
 
 ##### Question 2
@@ -38,10 +38,12 @@ A straightforward solution - just repeat an algorithm from the easier question f
 I used the GraphStream library to make visualizations. 
 
 Basic algorithm
+
 ![Basic algorithm](gif/basic.gif)
 
+Selecting "better" node for an approximate algorithm
 
-
+![Approximate algorithm](gif/approximate.gif)
 
 #### Algorithm analysis
 
