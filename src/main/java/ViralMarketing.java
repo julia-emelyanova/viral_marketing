@@ -9,20 +9,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-/*
-Nodes switched: 304 640 898 182 390 743 204 876 557 543
-Iterations: 7
-Best set: 742 266 507 605 861 557 221 543 975 767
-Best result: 28
--------------------
-Nodes switched: 80 352 912 949 872 904 298 586 812 431
-Iterations: 5
-Best set: 904 296 873 73 298 586 890 812 622 431
-Best result: 47
--------------------
- */
 
-//https://link.springer.com/article/10.1007/s41109-018-0062-7
 public class ViralMarketing {
 
     final static Logger logger = Logger.getLogger(ViralMarketing.class);
@@ -90,9 +77,14 @@ public class ViralMarketing {
 
         if (args.length > 0 && args[0].equals("basic")) {
             viralMarketing.runBasicAlgorithm();
-        } else {
-            for (int i = 0; i < 100; i++) {
-                viralMarketing.runApproximationAlgorithm();
+        } else if (args.length > 0 && args[0].equals("full")) {
+            boolean displayGraph = Boolean.valueOf(args[1]);
+            if (displayGraph) {
+                viralMarketing.runApproximationAlgorithm(true);
+            } else {
+                for (int i = 0; i < 10; i++) {
+                    viralMarketing.runApproximationAlgorithm(false);
+                }
             }
         }
     }
@@ -206,7 +198,9 @@ public class ViralMarketing {
     private void cascadeChanges(Set<Integer> nodesUsingA, boolean displayNodes) {
 
         int generationNum = 1;
-        logger.debug("Nodes switched in " + generationNum + " generation: " + nodesUsingA.size());
+        if (displayNodes) {
+            logger.debug("Nodes switched in " + generationNum + " generation: " + nodesUsingA.size());
+        }
 
         //run until there are no more changes
         while (true) {
@@ -270,12 +264,17 @@ public class ViralMarketing {
      *    into initial set of users instead of node N
      * 5. Run until the best set has not changed
      */
-    protected void runApproximationAlgorithm() {
-        initGraph(styleSheetVisualizeApproximation);
+    protected void runApproximationAlgorithm(boolean displayGraph) {
         g = readGraph("facebook_1000");
-        initialUsers = switchRandomNodes(10);
+        if (displayGraph) {
+            initialUsers = getSetForVisualizingApproximateSolution();
+            initGraph(styleSheetVisualizeApproximation);
+            graph.display();
+            sleep(10000);
+        } else {
+            initialUsers = switchRandomNodes(10);
+        }
         currentUsersSet = new HashSet<>(initialUsers);
-        graph.display();
         logger.debug("Nodes switched: " + setToString(currentUsersSet));
 
         Set<Integer> bestUserSet = new HashSet<>(initialUsers);
@@ -291,7 +290,9 @@ public class ViralMarketing {
             initialUsers = new HashSet<>(bestUserSet);
             currentUsersSet = new HashSet<>(initialUsers);
 
-            displayCurrentUsersSet();
+            if (displayGraph) {
+                displayCurrentUsersSet();
+            }
 
             for (int currentUser : initialUsers) {
 
@@ -316,29 +317,44 @@ public class ViralMarketing {
                     cascadeChanges(nodesUsingA, false);
 
                     currentResult = nodesUsingA.size();
-                    addAttribute(userForAnalysis, "ui.label", "" + currentResult);
+                    if (displayGraph) {
+                        addAttribute(userForAnalysis, "ui.label", "" + currentResult);
+                    }
 
                     if (currentResult > bestResult) {
                         bestUserSet = new HashSet<>(currentUsersSet);
                         bestResult = currentResult;
                         bestSetHasChanged = true;
                         bestUser = userForAnalysis;
-                        addAttribute(userForAnalysis, "ui.class", "better");
+                        if (displayGraph) {
+                            addAttribute(userForAnalysis, "ui.class", "better");
+                        }
+
                     } else {
-                        addAttribute(userForAnalysis, "ui.class", "worse");
+                        if (displayGraph) {
+                            addAttribute(userForAnalysis, "ui.class", "worse");
+                        }
                     }
 
-                    sleep();
+                    if (displayGraph) {
+                        sleep();
+                    }
 
                 }
 
-                removeAttribute(usersForAnalysis, "ui.class");
-                addAttribute(bestUser, "ui.class", "marked");
-                sleep();
+
+                if (displayGraph) {
+                    removeAttribute(usersForAnalysis, "ui.class");
+                    addAttribute(bestUser, "ui.class", "marked");
+                    sleep();
+                }
 
             }
 
-            removeAttribute("ui.label");
+            if (displayGraph) {
+                removeAttribute("ui.label");
+            }
+
 
         } while (bestSetHasChanged);
 
@@ -436,6 +452,8 @@ public class ViralMarketing {
     }
 
     protected void sleep() {
+
+        System.out.println("sleep");
         sleep(500);
     }
 
@@ -525,6 +543,21 @@ public class ViralMarketing {
         initialUsers.add(510);
         initialUsers.add(639);
 
+        return initialUsers;
+    }
+
+    private Set<Integer> getSetForVisualizingApproximateSolution() {
+        Set<Integer> initialUsers = new HashSet<>();
+        initialUsers.add(177);
+        initialUsers.add(465);
+        initialUsers.add(82);
+        initialUsers.add(130);
+        initialUsers.add(804);
+        initialUsers.add(375);
+        initialUsers.add(583);
+        initialUsers.add(855);
+        initialUsers.add(986);
+        initialUsers.add(971);
         return initialUsers;
     }
 }
